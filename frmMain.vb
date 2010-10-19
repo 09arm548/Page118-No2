@@ -2,24 +2,32 @@
 
     Private Sub btnDisplayAccountSummary_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnDisplayAccountSummary.Click
 
-        Dim sr As IO.StreamReader = IO.File.OpenText("Data.txt")
-        ' Try
-
-        ' Catch ex As Exception
-        'MsgBox("sldkfj")
-        ' End Try
+        Dim sr As IO.StreamReader = IO.File.OpenText("..\..\Data.txt")
+        Dim strFrmt1 As String = "{0, -15}{1, -15:c2}{2, -15:c2}{3, 15:c2}{4, 15:c2}{5, 15:c2}"
         Dim strAcctnumber As String
-        Dim dblPastdue As Double
-        Dim dblPayment As Double
-        Dim dblPurchases As Double
-        Dim dblFinanceCharge As Double
-        Dim dblAmtDue As Double
+        Dim dblPastdue, dblPayment, dblPurchases, dblFinanceCharge, dblAmtDue As Double
 
-        strAcctnumber = sr.ReadLine
-        dblPastdue = CDbl(sr.ReadLine)
+        'add headings to the listbox
+        lstAccountSummary.Items.Add(String.Format(strFrmt1, "Account", "Past Due", " ", " ", "Finance", "Current"))
+        lstAccountSummary.Items.Add(String.Format(strFrmt1, "Number", "Amount", "Payments", "Purchases", "Charges", "Amount Due"))
 
-        lstAccountSummary.Items.Add(strAcctnumber & " " & dblPastdue)
-
+        'read statement
+        Do While Not sr.EndOfStream
+            strAcctnumber = sr.ReadLine
+            dblPastdue = CDbl(sr.ReadLine)
+            dblPayment = CDbl(sr.ReadLine)
+            dblPurchases = CDbl(sr.ReadLine)
+            dblAmtDue = 0
+            dblFinanceCharge = 0
+            'compute
+            If dblPastdue - dblPayment > 0 Then
+                dblFinanceCharge = (dblPastdue - dblPayment) * 0.015
+            End If
+            'adds invoice info
+            dblAmtDue = (dblPastdue - dblPayment) + dblPurchases + dblFinanceCharge
+            lstAccountSummary.Items.Add(String.Format(strFrmt1, strAcctnumber, dblPastdue, dblPayment, dblPurchases, dblFinanceCharge, dblAmtDue))
+        Loop
 
     End Sub
+
 End Class
